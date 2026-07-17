@@ -3,9 +3,10 @@ use std::path::PathBuf;
 use std::process::Command;
 
 fn main() {
-    println!("cargo:rustc-link-search=.");
-    println!("cargo:rerun-if-changed=link.x");
-    println!("cargo:rerun-if-changed=memory.x");
+    println!("cargo:rustc-link-search=linkscript");
+    println!("cargo:rerun-if-changed=linkscript/link.x");
+    println!("cargo:rerun-if-changed=linkscript/memory.x");
+    println!("cargo:rerun-if-changed=linkscript/interrupt.x");
 
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     let obj_path = out_dir.join("vector_table.o");
