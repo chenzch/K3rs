@@ -1,0 +1,423 @@
+@ Auto-generated vector table for S32K312 (Cortex-M7).
+@ Generated from S32K312_M7.svd.
+
+@ ====================================================================
+@ Vector table (229 entries: 1 SP + 15 core exceptions + 213 IRQs).
+@
+@ Reserved IRQ slots are filled with 0.
+@ Named handlers default to Default_Handler via weak aliases below.
+@ ====================================================================
+    .section .vector_table,"a",%progbits
+    .balign 256
+    .word _stack_top          @ 00: initial SP
+    .word Reset_Handler        @ 01: Reset
+    .word NMI_Handler          @ 02: NMI
+    .word HardFault_Handler    @ 03: HardFault
+    .word MemManage_Handler    @ 04: MemManage
+    .word BusFault_Handler     @ 05: BusFault
+    .word UsageFault_Handler   @ 06: UsageFault
+    .word 0                    @ 07: Reserved
+    .word 0                    @ 08: Reserved
+    .word 0                    @ 09: Reserved
+    .word SVC_Handler          @ 10: SVCall
+    .word DebugMon_Handler     @ 11: DebugMonitor
+    .word 0                    @ 12: Reserved
+    .word PendSV_Handler       @ 13: PendSV
+    .word SysTick_Handler      @ 14: SysTick
+    .word 0                        @  15: IRQ0 (Reserved0)
+    .word 0                        @  16: IRQ1 (Reserved1)
+    .word 0                        @  17: IRQ2 (Reserved2)
+    .word 0                        @  18: IRQ3 (Reserved3)
+    .word DMATCD0_IRQHandler       @  19: IRQ4 (DMATCD0)
+    .word DMATCD1_IRQHandler       @  20: IRQ5 (DMATCD1)
+    .word DMATCD2_IRQHandler       @  21: IRQ6 (DMATCD2)
+    .word DMATCD3_IRQHandler       @  22: IRQ7 (DMATCD3)
+    .word DMATCD4_IRQHandler       @  23: IRQ8 (DMATCD4)
+    .word DMATCD5_IRQHandler       @  24: IRQ9 (DMATCD5)
+    .word DMATCD6_IRQHandler       @  25: IRQ10 (DMATCD6)
+    .word DMATCD7_IRQHandler       @  26: IRQ11 (DMATCD7)
+    .word DMATCD8_IRQHandler       @  27: IRQ12 (DMATCD8)
+    .word DMATCD9_IRQHandler       @  28: IRQ13 (DMATCD9)
+    .word DMATCD10_IRQHandler      @  29: IRQ14 (DMATCD10)
+    .word DMATCD11_IRQHandler      @  30: IRQ15 (DMATCD11)
+    .word 0                        @  31: IRQ16 (Reserved16)
+    .word 0                        @  32: IRQ17 (Reserved17)
+    .word 0                        @  33: IRQ18 (Reserved18)
+    .word 0                        @  34: IRQ19 (Reserved19)
+    .word 0                        @  35: IRQ20 (Reserved20)
+    .word 0                        @  36: IRQ21 (Reserved21)
+    .word 0                        @  37: IRQ22 (Reserved22)
+    .word 0                        @  38: IRQ23 (Reserved23)
+    .word 0                        @  39: IRQ24 (Reserved24)
+    .word 0                        @  40: IRQ25 (Reserved25)
+    .word 0                        @  41: IRQ26 (Reserved26)
+    .word 0                        @  42: IRQ27 (Reserved27)
+    .word 0                        @  43: IRQ28 (Reserved28)
+    .word 0                        @  44: IRQ29 (Reserved29)
+    .word 0                        @  45: IRQ30 (Reserved30)
+    .word 0                        @  46: IRQ31 (Reserved31)
+    .word 0                        @  47: IRQ32 (Reserved32)
+    .word 0                        @  48: IRQ33 (Reserved33)
+    .word 0                        @  49: IRQ34 (Reserved34)
+    .word 0                        @  50: IRQ35 (Reserved35)
+    .word ERM_0_IRQHandler         @  51: IRQ36 (ERM_0)
+    .word ERM_1_IRQHandler         @  52: IRQ37 (ERM_1)
+    .word 0                        @  53: IRQ38 (Reserved38)
+    .word STM0_IRQHandler          @  54: IRQ39 (STM0)
+    .word 0                        @  55: IRQ40 (Reserved40)
+    .word 0                        @  56: IRQ41 (Reserved41)
+    .word SWT0_IRQHandler          @  57: IRQ42 (SWT0)
+    .word 0                        @  58: IRQ43 (Reserved43)
+    .word 0                        @  59: IRQ44 (Reserved44)
+    .word 0                        @  60: IRQ45 (Reserved45)
+    .word 0                        @  61: IRQ46 (Reserved46)
+    .word 0                        @  62: IRQ47 (Reserved47)
+    .word FLASH_0_IRQHandler       @  63: IRQ48 (FLASH_0)
+    .word FLASH_1_IRQHandler       @  64: IRQ49 (FLASH_1)
+    .word FLASH_2_IRQHandler       @  65: IRQ50 (FLASH_2)
+    .word RGM_IRQHandler           @  66: IRQ51 (RGM)
+    .word PMC_IRQHandler           @  67: IRQ52 (PMC)
+    .word SIUL_0_IRQHandler        @  68: IRQ53 (SIUL_0)
+    .word SIUL_1_IRQHandler        @  69: IRQ54 (SIUL_1)
+    .word SIUL_2_IRQHandler        @  70: IRQ55 (SIUL_2)
+    .word SIUL_3_IRQHandler        @  71: IRQ56 (SIUL_3)
+    .word 0                        @  72: IRQ57 (Reserved57)
+    .word 0                        @  73: IRQ58 (Reserved58)
+    .word 0                        @  74: IRQ59 (Reserved59)
+    .word 0                        @  75: IRQ60 (Reserved60)
+    .word 0                        @  76: IRQ61 (Reserved61)
+    .word 0                        @  77: IRQ62 (Reserved62)
+    .word 0                        @  78: IRQ63 (Reserved63)
+    .word 0                        @  79: IRQ64 (Reserved64)
+    .word 0                        @  80: IRQ65 (Reserved65)
+    .word 0                        @  81: IRQ66 (Reserved66)
+    .word 0                        @  82: IRQ67 (Reserved67)
+    .word 0                        @  83: IRQ68 (Reserved68)
+    .word 0                        @  84: IRQ69 (Reserved69)
+    .word 0                        @  85: IRQ70 (Reserved70)
+    .word 0                        @  86: IRQ71 (Reserved71)
+    .word 0                        @  87: IRQ72 (Reserved72)
+    .word 0                        @  88: IRQ73 (Reserved73)
+    .word 0                        @  89: IRQ74 (Reserved74)
+    .word 0                        @  90: IRQ75 (Reserved75)
+    .word 0                        @  91: IRQ76 (Reserved76)
+    .word 0                        @  92: IRQ77 (Reserved77)
+    .word 0                        @  93: IRQ78 (Reserved78)
+    .word 0                        @  94: IRQ79 (Reserved79)
+    .word 0                        @  95: IRQ80 (Reserved80)
+    .word 0                        @  96: IRQ81 (Reserved81)
+    .word 0                        @  97: IRQ82 (Reserved82)
+    .word WKPU_IRQHandler          @  98: IRQ83 (WKPU)
+    .word CMU0_IRQHandler          @  99: IRQ84 (CMU0)
+    .word CMU1_IRQHandler          @ 100: IRQ85 (CMU1)
+    .word CMU2_IRQHandler          @ 101: IRQ86 (CMU2)
+    .word BCTU_IRQHandler          @ 102: IRQ87 (BCTU)
+    .word 0                        @ 103: IRQ88 (Reserved88)
+    .word 0                        @ 104: IRQ89 (Reserved89)
+    .word 0                        @ 105: IRQ90 (Reserved90)
+    .word 0                        @ 106: IRQ91 (Reserved91)
+    .word LCU0_IRQHandler          @ 107: IRQ92 (LCU0)
+    .word LCU1_IRQHandler          @ 108: IRQ93 (LCU1)
+    .word 0                        @ 109: IRQ94 (Reserved94)
+    .word 0                        @ 110: IRQ95 (Reserved95)
+    .word PIT0_IRQHandler          @ 111: IRQ96 (PIT0)
+    .word PIT1_IRQHandler          @ 112: IRQ97 (PIT1)
+    .word 0                        @ 113: IRQ98 (Reserved98)
+    .word 0                        @ 114: IRQ99 (Reserved99)
+    .word 0                        @ 115: IRQ100 (Reserved100)
+    .word 0                        @ 116: IRQ101 (Reserved101)
+    .word RTC_IRQHandler           @ 117: IRQ102 (RTC)
+    .word 0                        @ 118: IRQ103 (Reserved103)
+    .word 0                        @ 119: IRQ104 (Reserved104)
+    .word 0                        @ 120: IRQ105 (Reserved105)
+    .word 0                        @ 121: IRQ106 (Reserved106)
+    .word 0                        @ 122: IRQ107 (Reserved107)
+    .word 0                        @ 123: IRQ108 (Reserved108)
+    .word FlexCAN0_0_IRQHandler    @ 124: IRQ109 (FlexCAN0_0)
+    .word FlexCAN0_1_IRQHandler    @ 125: IRQ110 (FlexCAN0_1)
+    .word FlexCAN0_2_IRQHandler    @ 126: IRQ111 (FlexCAN0_2)
+    .word 0                        @ 127: IRQ112 (Reserved112)
+    .word FlexCAN1_0_IRQHandler    @ 128: IRQ113 (FlexCAN1_0)
+    .word FlexCAN1_1_IRQHandler    @ 129: IRQ114 (FlexCAN1_1)
+    .word FlexCAN1_2_IRQHandler    @ 130: IRQ115 (FlexCAN1_2)
+    .word FlexCAN2_0_IRQHandler    @ 131: IRQ116 (FlexCAN2_0)
+    .word FlexCAN2_1_IRQHandler    @ 132: IRQ117 (FlexCAN2_1)
+    .word FlexCAN2_2_IRQHandler    @ 133: IRQ118 (FlexCAN2_2)
+    .word FlexCAN3_0_IRQHandler    @ 134: IRQ119 (FlexCAN3_0)
+    .word FlexCAN3_1_IRQHandler    @ 135: IRQ120 (FlexCAN3_1)
+    .word FlexCAN4_0_IRQHandler    @ 136: IRQ121 (FlexCAN4_0)
+    .word FlexCAN4_1_IRQHandler    @ 137: IRQ122 (FlexCAN4_1)
+    .word FlexCAN5_0_IRQHandler    @ 138: IRQ123 (FlexCAN5_0)
+    .word FlexCAN5_1_IRQHandler    @ 139: IRQ124 (FlexCAN5_1)
+    .word 0                        @ 140: IRQ125 (Reserved125)
+    .word 0                        @ 141: IRQ126 (Reserved126)
+    .word 0                        @ 142: IRQ127 (Reserved127)
+    .word 0                        @ 143: IRQ128 (Reserved128)
+    .word 0                        @ 144: IRQ129 (Reserved129)
+    .word 0                        @ 145: IRQ130 (Reserved130)
+    .word 0                        @ 146: IRQ131 (Reserved131)
+    .word 0                        @ 147: IRQ132 (Reserved132)
+    .word 0                        @ 148: IRQ133 (Reserved133)
+    .word 0                        @ 149: IRQ134 (Reserved134)
+    .word 0                        @ 150: IRQ135 (Reserved135)
+    .word 0                        @ 151: IRQ136 (Reserved136)
+    .word 0                        @ 152: IRQ137 (Reserved137)
+    .word 0                        @ 153: IRQ138 (Reserved138)
+    .word 0                        @ 154: IRQ139 (Reserved139)
+    .word 0                        @ 155: IRQ140 (Reserved140)
+    .word LPUART0_IRQHandler       @ 156: IRQ141 (LPUART0)
+    .word LPUART1_IRQHandler       @ 157: IRQ142 (LPUART1)
+    .word LPUART2_IRQHandler       @ 158: IRQ143 (LPUART2)
+    .word LPUART3_IRQHandler       @ 159: IRQ144 (LPUART3)
+    .word LPUART4_IRQHandler       @ 160: IRQ145 (LPUART4)
+    .word LPUART5_IRQHandler       @ 161: IRQ146 (LPUART5)
+    .word LPUART6_IRQHandler       @ 162: IRQ147 (LPUART6)
+    .word LPUART7_IRQHandler       @ 163: IRQ148 (LPUART7)
+    .word 0                        @ 164: IRQ149 (Reserved149)
+    .word 0                        @ 165: IRQ150 (Reserved150)
+    .word 0                        @ 166: IRQ151 (Reserved151)
+    .word 0                        @ 167: IRQ152 (Reserved152)
+    .word 0                        @ 168: IRQ153 (Reserved153)
+    .word 0                        @ 169: IRQ154 (Reserved154)
+    .word 0                        @ 170: IRQ155 (Reserved155)
+    .word 0                        @ 171: IRQ156 (Reserved156)
+    .word 0                        @ 172: IRQ157 (Reserved157)
+    .word 0                        @ 173: IRQ158 (Reserved158)
+    .word 0                        @ 174: IRQ159 (Reserved159)
+    .word I3C_IRQHandler           @ 175: IRQ160 (I3C)
+    .word LPI2C0_IRQHandler        @ 176: IRQ161 (LPI2C0)
+    .word LPI2C1_IRQHandler        @ 177: IRQ162 (LPI2C1)
+    .word 0                        @ 178: IRQ163 (Reserved163)
+    .word 0                        @ 179: IRQ164 (Reserved164)
+    .word LPSPI0_IRQHandler        @ 180: IRQ165 (LPSPI0)
+    .word LPSPI1_IRQHandler        @ 181: IRQ166 (LPSPI1)
+    .word LPSPI2_IRQHandler        @ 182: IRQ167 (LPSPI2)
+    .word LPSPI3_IRQHandler        @ 183: IRQ168 (LPSPI3)
+    .word 0                        @ 184: IRQ169 (Reserved169)
+    .word 0                        @ 185: IRQ170 (Reserved170)
+    .word 0                        @ 186: IRQ171 (Reserved171)
+    .word 0                        @ 187: IRQ172 (Reserved172)
+    .word 0                        @ 188: IRQ173 (Reserved173)
+    .word 0                        @ 189: IRQ174 (Reserved174)
+    .word 0                        @ 190: IRQ175 (Reserved175)
+    .word 0                        @ 191: IRQ176 (Reserved176)
+    .word 0                        @ 192: IRQ177 (Reserved177)
+    .word JDC_IRQHandler           @ 193: IRQ178 (JDC)
+    .word 0                        @ 194: IRQ179 (Reserved179)
+    .word ADC0_IRQHandler          @ 195: IRQ180 (ADC0)
+    .word ADC1_IRQHandler          @ 196: IRQ181 (ADC1)
+    .word 0                        @ 197: IRQ182 (Reserved182)
+    .word LPCMP0_IRQHandler        @ 198: IRQ183 (LPCMP0)
+    .word LPCMP1_IRQHandler        @ 199: IRQ184 (LPCMP1)
+    .word 0                        @ 200: IRQ185 (Reserved185)
+    .word 0                        @ 201: IRQ186 (Reserved186)
+    .word 0                        @ 202: IRQ187 (Reserved187)
+    .word 0                        @ 203: IRQ188 (Reserved188)
+    .word FCCU_0_IRQHandler        @ 204: IRQ189 (FCCU_0)
+    .word FCCU_1_IRQHandler        @ 205: IRQ190 (FCCU_1)
+    .word STCU_MBIST_IRQHandler    @ 206: IRQ191 (STCU_MBIST)
+    .word 0                        @ 207: IRQ192 (Reserved192)
+    .word 0                        @ 208: IRQ193 (Reserved193)
+    .word 0                        @ 209: IRQ194 (Reserved194)
+    .word 0                        @ 210: IRQ195 (Reserved195)
+    .word 0                        @ 211: IRQ196 (Reserved196)
+    .word 0                        @ 212: IRQ197 (Reserved197)
+    .word 0                        @ 213: IRQ198 (Reserved198)
+    .word 0                        @ 214: IRQ199 (Reserved199)
+    .word 0                        @ 215: IRQ200 (Reserved200)
+    .word 0                        @ 216: IRQ201 (Reserved201)
+    .word 0                        @ 217: IRQ202 (Reserved202)
+    .word 0                        @ 218: IRQ203 (Reserved203)
+    .word 0                        @ 219: IRQ204 (Reserved204)
+    .word 0                        @ 220: IRQ205 (Reserved205)
+    .word 0                        @ 221: IRQ206 (Reserved206)
+    .word 0                        @ 222: IRQ207 (Reserved207)
+    .word 0                        @ 223: IRQ208 (Reserved208)
+    .word 0                        @ 224: IRQ209 (Reserved209)
+    .word 0                        @ 225: IRQ210 (Reserved210)
+    .word 0                        @ 226: IRQ211 (Reserved211)
+    .word SoC_IRQHandler           @ 227: IRQ212 (SoC)
+
+@ ====================================================================
+@ Default_Handler -- default interrupt handler (infinite loop).
+@ All undefined interrupt handlers are weak aliases of this function.
+@ ====================================================================
+    .section .text.Default_Handler,"ax",%progbits
+    .thumb_func
+    .global Default_Handler
+    .type Default_Handler, %function
+Default_Handler:
+    b .
+    .size Default_Handler, . - Default_Handler
+
+@ ====================================================================
+@ Weak aliases: every named handler defaults to Default_Handler.
+@ A strong definition of the same name elsewhere will override.
+@ ====================================================================
+    .weak NMI_Handler
+    .thumb_set NMI_Handler, Default_Handler
+    .weak HardFault_Handler
+    .thumb_set HardFault_Handler, Default_Handler
+    .weak MemManage_Handler
+    .thumb_set MemManage_Handler, Default_Handler
+    .weak BusFault_Handler
+    .thumb_set BusFault_Handler, Default_Handler
+    .weak UsageFault_Handler
+    .thumb_set UsageFault_Handler, Default_Handler
+    .weak SVC_Handler
+    .thumb_set SVC_Handler, Default_Handler
+    .weak DebugMon_Handler
+    .thumb_set DebugMon_Handler, Default_Handler
+    .weak PendSV_Handler
+    .thumb_set PendSV_Handler, Default_Handler
+    .weak SysTick_Handler
+    .thumb_set SysTick_Handler, Default_Handler
+
+    .weak DMATCD0_IRQHandler
+    .thumb_set DMATCD0_IRQHandler, Default_Handler
+    .weak DMATCD1_IRQHandler
+    .thumb_set DMATCD1_IRQHandler, Default_Handler
+    .weak DMATCD2_IRQHandler
+    .thumb_set DMATCD2_IRQHandler, Default_Handler
+    .weak DMATCD3_IRQHandler
+    .thumb_set DMATCD3_IRQHandler, Default_Handler
+    .weak DMATCD4_IRQHandler
+    .thumb_set DMATCD4_IRQHandler, Default_Handler
+    .weak DMATCD5_IRQHandler
+    .thumb_set DMATCD5_IRQHandler, Default_Handler
+    .weak DMATCD6_IRQHandler
+    .thumb_set DMATCD6_IRQHandler, Default_Handler
+    .weak DMATCD7_IRQHandler
+    .thumb_set DMATCD7_IRQHandler, Default_Handler
+    .weak DMATCD8_IRQHandler
+    .thumb_set DMATCD8_IRQHandler, Default_Handler
+    .weak DMATCD9_IRQHandler
+    .thumb_set DMATCD9_IRQHandler, Default_Handler
+    .weak DMATCD10_IRQHandler
+    .thumb_set DMATCD10_IRQHandler, Default_Handler
+    .weak DMATCD11_IRQHandler
+    .thumb_set DMATCD11_IRQHandler, Default_Handler
+    .weak ERM_0_IRQHandler
+    .thumb_set ERM_0_IRQHandler, Default_Handler
+    .weak ERM_1_IRQHandler
+    .thumb_set ERM_1_IRQHandler, Default_Handler
+    .weak STM0_IRQHandler
+    .thumb_set STM0_IRQHandler, Default_Handler
+    .weak SWT0_IRQHandler
+    .thumb_set SWT0_IRQHandler, Default_Handler
+    .weak FLASH_0_IRQHandler
+    .thumb_set FLASH_0_IRQHandler, Default_Handler
+    .weak FLASH_1_IRQHandler
+    .thumb_set FLASH_1_IRQHandler, Default_Handler
+    .weak FLASH_2_IRQHandler
+    .thumb_set FLASH_2_IRQHandler, Default_Handler
+    .weak RGM_IRQHandler
+    .thumb_set RGM_IRQHandler, Default_Handler
+    .weak PMC_IRQHandler
+    .thumb_set PMC_IRQHandler, Default_Handler
+    .weak SIUL_0_IRQHandler
+    .thumb_set SIUL_0_IRQHandler, Default_Handler
+    .weak SIUL_1_IRQHandler
+    .thumb_set SIUL_1_IRQHandler, Default_Handler
+    .weak SIUL_2_IRQHandler
+    .thumb_set SIUL_2_IRQHandler, Default_Handler
+    .weak SIUL_3_IRQHandler
+    .thumb_set SIUL_3_IRQHandler, Default_Handler
+    .weak WKPU_IRQHandler
+    .thumb_set WKPU_IRQHandler, Default_Handler
+    .weak CMU0_IRQHandler
+    .thumb_set CMU0_IRQHandler, Default_Handler
+    .weak CMU1_IRQHandler
+    .thumb_set CMU1_IRQHandler, Default_Handler
+    .weak CMU2_IRQHandler
+    .thumb_set CMU2_IRQHandler, Default_Handler
+    .weak BCTU_IRQHandler
+    .thumb_set BCTU_IRQHandler, Default_Handler
+    .weak LCU0_IRQHandler
+    .thumb_set LCU0_IRQHandler, Default_Handler
+    .weak LCU1_IRQHandler
+    .thumb_set LCU1_IRQHandler, Default_Handler
+    .weak PIT0_IRQHandler
+    .thumb_set PIT0_IRQHandler, Default_Handler
+    .weak PIT1_IRQHandler
+    .thumb_set PIT1_IRQHandler, Default_Handler
+    .weak RTC_IRQHandler
+    .thumb_set RTC_IRQHandler, Default_Handler
+    .weak FlexCAN0_0_IRQHandler
+    .thumb_set FlexCAN0_0_IRQHandler, Default_Handler
+    .weak FlexCAN0_1_IRQHandler
+    .thumb_set FlexCAN0_1_IRQHandler, Default_Handler
+    .weak FlexCAN0_2_IRQHandler
+    .thumb_set FlexCAN0_2_IRQHandler, Default_Handler
+    .weak FlexCAN1_0_IRQHandler
+    .thumb_set FlexCAN1_0_IRQHandler, Default_Handler
+    .weak FlexCAN1_1_IRQHandler
+    .thumb_set FlexCAN1_1_IRQHandler, Default_Handler
+    .weak FlexCAN1_2_IRQHandler
+    .thumb_set FlexCAN1_2_IRQHandler, Default_Handler
+    .weak FlexCAN2_0_IRQHandler
+    .thumb_set FlexCAN2_0_IRQHandler, Default_Handler
+    .weak FlexCAN2_1_IRQHandler
+    .thumb_set FlexCAN2_1_IRQHandler, Default_Handler
+    .weak FlexCAN2_2_IRQHandler
+    .thumb_set FlexCAN2_2_IRQHandler, Default_Handler
+    .weak FlexCAN3_0_IRQHandler
+    .thumb_set FlexCAN3_0_IRQHandler, Default_Handler
+    .weak FlexCAN3_1_IRQHandler
+    .thumb_set FlexCAN3_1_IRQHandler, Default_Handler
+    .weak FlexCAN4_0_IRQHandler
+    .thumb_set FlexCAN4_0_IRQHandler, Default_Handler
+    .weak FlexCAN4_1_IRQHandler
+    .thumb_set FlexCAN4_1_IRQHandler, Default_Handler
+    .weak FlexCAN5_0_IRQHandler
+    .thumb_set FlexCAN5_0_IRQHandler, Default_Handler
+    .weak FlexCAN5_1_IRQHandler
+    .thumb_set FlexCAN5_1_IRQHandler, Default_Handler
+    .weak LPUART0_IRQHandler
+    .thumb_set LPUART0_IRQHandler, Default_Handler
+    .weak LPUART1_IRQHandler
+    .thumb_set LPUART1_IRQHandler, Default_Handler
+    .weak LPUART2_IRQHandler
+    .thumb_set LPUART2_IRQHandler, Default_Handler
+    .weak LPUART3_IRQHandler
+    .thumb_set LPUART3_IRQHandler, Default_Handler
+    .weak LPUART4_IRQHandler
+    .thumb_set LPUART4_IRQHandler, Default_Handler
+    .weak LPUART5_IRQHandler
+    .thumb_set LPUART5_IRQHandler, Default_Handler
+    .weak LPUART6_IRQHandler
+    .thumb_set LPUART6_IRQHandler, Default_Handler
+    .weak LPUART7_IRQHandler
+    .thumb_set LPUART7_IRQHandler, Default_Handler
+    .weak I3C_IRQHandler
+    .thumb_set I3C_IRQHandler, Default_Handler
+    .weak LPI2C0_IRQHandler
+    .thumb_set LPI2C0_IRQHandler, Default_Handler
+    .weak LPI2C1_IRQHandler
+    .thumb_set LPI2C1_IRQHandler, Default_Handler
+    .weak LPSPI0_IRQHandler
+    .thumb_set LPSPI0_IRQHandler, Default_Handler
+    .weak LPSPI1_IRQHandler
+    .thumb_set LPSPI1_IRQHandler, Default_Handler
+    .weak LPSPI2_IRQHandler
+    .thumb_set LPSPI2_IRQHandler, Default_Handler
+    .weak LPSPI3_IRQHandler
+    .thumb_set LPSPI3_IRQHandler, Default_Handler
+    .weak JDC_IRQHandler
+    .thumb_set JDC_IRQHandler, Default_Handler
+    .weak ADC0_IRQHandler
+    .thumb_set ADC0_IRQHandler, Default_Handler
+    .weak ADC1_IRQHandler
+    .thumb_set ADC1_IRQHandler, Default_Handler
+    .weak LPCMP0_IRQHandler
+    .thumb_set LPCMP0_IRQHandler, Default_Handler
+    .weak LPCMP1_IRQHandler
+    .thumb_set LPCMP1_IRQHandler, Default_Handler
+    .weak FCCU_0_IRQHandler
+    .thumb_set FCCU_0_IRQHandler, Default_Handler
+    .weak FCCU_1_IRQHandler
+    .thumb_set FCCU_1_IRQHandler, Default_Handler
+    .weak STCU_MBIST_IRQHandler
+    .thumb_set STCU_MBIST_IRQHandler, Default_Handler
+    .weak SoC_IRQHandler
+    .thumb_set SoC_IRQHandler, Default_Handler

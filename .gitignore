@@ -16,9 +16,5 @@ Cargo.lock
 *.hex
 *.bin
 
-# Generated files (from svd2rust)
-src/mcu.rs
-src/vector_table.rs
-
 # Logs
 *.log

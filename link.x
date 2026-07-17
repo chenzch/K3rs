@@ -32,15 +32,15 @@ SECTIONS
         . = ALIGN(4);
         *(.text.Reset_Handler)
         *(.text .text.*)
-        . = ALIGN(4);
+        . = ALIGN(8);
     } > FLASH
 
     /* ---- Read-only data ---- */
     .rodata :
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         *(.rodata .rodata.*)
-        . = ALIGN(4);
+        . = ALIGN(8);
     } > FLASH
 
     /* ---- memcpy64 as ramcode in ITCM (VMA=ITCM, LMA=FLASH) ---- */
@@ -53,6 +53,7 @@ SECTIONS
         __memcpy64_end = .;
     } > ITCM AT > FLASH
     __memcpy64_load = LOADADDR(.memcpy64_text);
+    ASSERT(__memcpy64_load % 8 == 0, "memcpy64 load address must be 8-byte aligned")
 
     /* ---- Initialized data: lives in FLASH, copied to DTCM at runtime ---- */
     .data :
