@@ -2,7 +2,7 @@
 //!
 //! Auto-generated from S32K312_M7.svd.
 //! 228 entries: 1 SP + 14 core exceptions + 213 external IRQs (IRQ0-IRQ212).
-//! Reserved IRQ slots are filled with 0 (NULL).
+//! Reserved IRQ slots are filled with 0xFFFFFFFF.
 //! Named handlers default to Default_Handler via PROVIDE aliases in interrupt.x.
 
 /// A vector table entry — union of function pointer and raw address,
@@ -13,7 +13,7 @@ pub union VectorEntry {
     addr: usize,
 }
 
-const NULL: VectorEntry = VectorEntry { addr: 0 };
+const NULL: VectorEntry = VectorEntry { addr: 0xFFFF_FFFF };
 
 const fn h(f: unsafe extern "C" fn()) -> VectorEntry {
     VectorEntry { fn_ptr: f }
