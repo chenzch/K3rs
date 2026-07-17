@@ -88,6 +88,18 @@ pub unsafe extern "C" fn memcpy64(src: *const u8, dst: *mut u8, n: usize) -> *mu
 }
 
 // =====================================================================
+// Default_Handler -- default interrupt handler (infinite loop).
+// All undefined interrupt handlers are weak aliases (via PROVIDE in
+// link.x) of this function.  A strong definition of any handler
+// elsewhere overrides the PROVIDE.
+// =====================================================================
+#[no_mangle]
+#[link_section = ".text.Default_Handler"]
+pub extern "C" fn Default_Handler() -> ! {
+    loop {}
+}
+
+// =====================================================================
 // main -- an empty infinite loop.
 // =====================================================================
 #[no_mangle]
