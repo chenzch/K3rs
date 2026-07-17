@@ -8,49 +8,30 @@ Disassembly of section .text:
   400492:      	movs	r0, #0x0
   400494:      	strd	r0, r0, [sp, #-16]
   400498:      	strd	r0, r0, [sp, #-8]
-  40049c:      	b.w	0x4004a8 <_ZN4K3rs11__rust_init17h7f850b3e10c5f602E> @ imm = #0x8
+  40049c:      	ldr	r0, [pc, #0x10]         @ 0x4004b0 <Reset_Handler+0x20>
+  40049e:      	ldr	r1, [pc, #0x14]         @ 0x4004b4 <Reset_Handler+0x24>
+  4004a0:      	ldr	r2, [pc, #0x14]         @ 0x4004b8 <Reset_Handler+0x28>
+  4004a2:      	sub.w	r2, r2, r1
+  4004a6:      	bl	0x0 <memcpy64>          @ imm = #-0x4004aa
+  4004aa:      	b.w	0x4004c2 <main>         @ imm = #0x14
+  4004ae:      	movs	r0, r0
+  4004b0: c8 04 40 00  	.word	0x004004c8
+  4004b4: 00 00 00 00  	.word	0x00000000
+  4004b8: 30 00 00 00  	.word	0x00000030
 
-004004a0 <WKPU_IRQHandler>:
+004004bc <WKPU_IRQHandler>:
 ; pub extern "C" fn Default_Handler() -> ! {
-  4004a0:      	push	{r7, lr}
-  4004a2:      	mov	r7, sp
+  4004bc:      	push	{r7, lr}
+  4004be:      	mov	r7, sp
 ;     loop {}
-  4004a4:      	b	0x4004a4 <WKPU_IRQHandler+0x4> @ imm = #-0x4
-  4004a6:      	bmi	0x400452 <_vector_table+0x352> @ imm = #-0x58
+  4004c0:      	b	0x4004c0 <WKPU_IRQHandler+0x4> @ imm = #-0x4
 
-004004a8 <_ZN4K3rs11__rust_init17h7f850b3e10c5f602E>:
-; unsafe extern "C" fn __rust_init() -> ! {
-  4004a8:      	push	{r5, r6, r7, lr}
-  4004aa:      	add	r7, sp, #0x8
-/root/.local/share/swiftly/toolchains/6.2.4/usr/bin/llvm-objdump: warning: 'target/thumbv7em-none-eabihf/release/K3rs': failed to find source /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/core/src/hint.rs
-  4004ac:      	ldr	r0, [pc, #0x14]         @ 0x4004c4 <_ZN4K3rs11__rust_init17h7f850b3e10c5f602E+0x1c>
-  4004ae:      	str	r0, [sp, #0x4]
-  4004b0:      	add	r0, sp, #0x4
-;     do_copy(src, dst, len);
-  4004b2:      	ldr	r1, [pc, #0x14]         @ 0x4004c8 <_ZN4K3rs11__rust_init17h7f850b3e10c5f602E+0x20>
-  4004b4:      	ldr	r0, [pc, #0x14]         @ 0x4004cc <_ZN4K3rs11__rust_init17h7f850b3e10c5f602E+0x24>
-  4004b6:      	ldr	r3, [sp, #0x4]
-;     do_copy(src, dst, len);
-  4004b8:      	subs	r2, r0, r1
-  4004ba:      	ldr	r0, [pc, #0x14]         @ 0x4004d0 <_ZN4K3rs11__rust_init17h7f850b3e10c5f602E+0x28>
-  4004bc:      	blx	r3
-;     main();
-  4004be:      	bl	0x4004d4 <main>         @ imm = #0x12
-  4004c2:      	nop
-  4004c4: 01 00 00 00  	.word	0x00000001
-  4004c8: 00 00 00 00  	.word	0x00000000
-  4004cc: 30 00 00 00  	.word	0x00000030
-  4004d0: e0 04 40 00  	.word	0x004004e0
-
-004004d4 <main>:
+004004c2 <main>:
 ; pub extern "C" fn main() -> ! {
-  4004d4:      	push	{r7, lr}
-  4004d6:      	mov	r7, sp
+  4004c2:      	push	{r7, lr}
+  4004c4:      	mov	r7, sp
 ;     loop {}
-  4004d8:      	b	0x4004d8 <main+0x4>     @ imm = #-0x4
-  4004da:      	bmi	0x400486 <_vector_table+0x386> @ imm = #-0x58
-  4004dc:      	bmi	0x400488 <_vector_table+0x388> @ imm = #-0x58
-  4004de:      	bmi	0x40048a <_vector_table+0x38a> @ imm = #-0x58
+  4004c6:      	b	0x4004c6 <main+0x4>     @ imm = #-0x4
 
 Disassembly of section .ramcode:
 

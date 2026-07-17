@@ -3,10 +3,11 @@
 //! Boot flow (see `Reset_Handler`):
 //!   1. Disable global interrupts via inline asm (`cpsid i`).
 //!   2. Zero 16 bytes at SP-16..SP-1 (two 64-bit strd writes, r0=0).
-//!   3. Jump to `__rust_init` which copies ramcode and calls `main`.
+//!   3. Copy ramcode (memcpy64 + memset64) from FLASH (LMA) to ITCM (VMA).
+//!   4. Jump to `main` (never returns).
 //!
 //! `Reset_Handler` is a naked function — no prologue, no epilogue,
-//! no stack frame, never returns.
+//! no stack frame, never returns. All init code is inline asm.
 //!
 //! Interrupt handling:
 //!   - Full vector table (229 entries: SP + 15 core exceptions +
@@ -33,55 +34,49 @@ pub mod ivt_table;
 // Reset_Handler -- naked entry point (no prologue/epilogue, no stack frame).
 //
 // The hardware enters here out of reset with SP already loaded from
-// VECTOR_TABLE[0]. We do the bare minimum in asm, then jump to the
-// Rust initialization function which never returns.
+// VECTOR_TABLE[0]. All initialization is inline asm; this function
+// never returns.
 //
 // Steps (all in asm):
-//   1. cpsid i           -- disable global interrupts
-//   2. movs r0, #0       -- zero r0 for strd
-//   3. strd r0,r0,[sp,#-16] -- zero bytes SP-16 .. SP-9
-//   4. strd r0,r0,[sp,#-8]  -- zero bytes SP-8 .. SP-1
-//   5. b    __rust_init  -- jump to Rust init (never returns)
+//   1. cpsid i                    -- disable global interrupts
+//   2. movs r0, #0                -- zero r0 for strd
+//   3. strd r0,r0,[sp,#-16]       -- zero bytes SP-16 .. SP-9
+//   4. strd r0,r0,[sp,#-8]        -- zero bytes SP-8 .. SP-1
+//   5. ldr  r0, =__ramcode_load   -- r0 = src  (FLASH LMA)
+//   6. ldr  r1, =__ramcode_start  -- r1 = dst  (ITCM VMA)
+//   7. ldr  r2, =__ramcode_end    -- r2 = end  (ITCM VMA)
+//   8. sub  r2, r2, r1            -- r2 = len = end - start
+//   9. bl   memcpy64              -- copy ramcode from FLASH to ITCM
+//  10. b    main                  -- jump to main (never returns)
 // =====================================================================
 #[unsafe(naked)]
 #[no_mangle]
 #[link_section = ".text.Reset_Handler"]
 pub unsafe extern "C" fn Reset_Handler() -> ! {
+    extern "C" {
+        static __ramcode_start: u8;
+        static __ramcode_end: u8;
+        static __ramcode_load: u8;
+        fn memcpy64(src: *const u8, dst: *mut u8, n: usize) -> *mut u8;
+        fn main() -> !;
+    }
     core::arch::naked_asm!(
         "cpsid i",
         "movs r0, #0",
         "strd r0, r0, [sp, #-16]",
         "strd r0, r0, [sp, #-8]",
-        "b {rust_init}",
-        rust_init = sym __rust_init,
+        "ldr r0, ={load}",
+        "ldr r1, ={start}",
+        "ldr r2, ={end}",
+        "sub r2, r2, r1",
+        "bl {copy}",
+        "b {main}",
+        load = sym __ramcode_load,
+        start = sym __ramcode_start,
+        end = sym __ramcode_end,
+        copy = sym memcpy64,
+        main = sym main,
     );
-}
-
-// =====================================================================
-// __rust_init -- Rust-side initialization (called from Reset_Handler).
-//
-//   1. Copy ramcode (memcpy64 + memset64) from FLASH (LMA) to ITCM (VMA).
-//   2. Call main.
-// =====================================================================
-unsafe extern "C" fn __rust_init() -> ! {
-    // Copy ramcode from its FLASH load address to its ITCM link address.
-    extern "C" {
-        static __ramcode_start: u8;
-        static __ramcode_end: u8;
-        static __ramcode_load: u8;
-    }
-    let src: *const u8 = ptr::addr_of!(__ramcode_load);
-    let dst: *mut u8 = ptr::addr_of!(__ramcode_start) as *mut u8;
-    let len: usize =
-        ptr::addr_of!(__ramcode_end) as usize - ptr::addr_of!(__ramcode_start) as usize;
-
-    // Call memcpy64 via a black_box'd function pointer to prevent LLVM
-    // from recognising it as the memcpy builtin and optimising away the call.
-    let do_copy: unsafe extern "C" fn(*const u8, *mut u8, usize) -> *mut u8 =
-        core::hint::black_box(memcpy64);
-    do_copy(src, dst, len);
-
-    main();
 }
 
 // =====================================================================
