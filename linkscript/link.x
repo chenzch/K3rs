@@ -4,10 +4,9 @@
  * sits at the very start of FLASH; the CPU loads the initial SP from its
  * first word and the reset vector from its second word.
  *
- * `memcpy64` is placed as ramcode: its VMA is in ITCM (so calls to it go
- * through the ITCM address), but its LMA is in FLASH (so it is stored in
- * flash image).  On reset, Reset_Handler copies it from FLASH to ITCM.
- * Both start/end symbols and the load address are 8-byte aligned.
+ * `memcpy64` and `memset64` are placed as ramcode: VMA in ITCM, LMA in FLASH,
+ * self-copied at reset. Both start/end symbols and the load address are
+ * 8-byte aligned.
  */
 
 INCLUDE memory.x
@@ -52,17 +51,17 @@ SECTIONS
         . = ALIGN(8);
     } > FLASH
 
-    /* ---- memcpy64 as ramcode in ITCM (VMA=ITCM, LMA=FLASH) ---- */
-    .memcpy64_text :
+    /* ---- Ramcode (memcpy64 + memset64) in ITCM (VMA=ITCM, LMA=FLASH) ---- */
+    .ramcode :
     {
         . = ALIGN(8);
-        __memcpy64_start = .;
-        KEEP(*(.memcpy64_code))
+        __ramcode_start = .;
+        KEEP(*(.ramcode))
         . = ALIGN(8);
-        __memcpy64_end = .;
+        __ramcode_end = .;
     } > ITCM AT > FLASH
-    __memcpy64_load = LOADADDR(.memcpy64_text);
-    ASSERT(__memcpy64_load % 8 == 0, "memcpy64 load address must be 8-byte aligned")
+    __ramcode_load = LOADADDR(.ramcode);
+    ASSERT(__ramcode_load % 8 == 0, "ramcode load address must be 8-byte aligned")
 
     /* ---- Initialized data: lives in FLASH, copied to DTCM at runtime ---- */
     .data :
