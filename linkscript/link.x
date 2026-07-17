@@ -19,10 +19,17 @@ PROVIDE(_stack_top = ORIGIN(DTCM) + LENGTH(DTCM));
 
 SECTIONS
 {
-    /* ---- Vector table at the very start of FLASH ---- */
-    .vector_table ORIGIN(FLASH) :
+    /* ---- IVT table at the very start of FLASH (256 bytes) ---- */
+    .ivt_table ORIGIN(FLASH) :
     {
-        . = ALIGN(256);
+        KEEP(*(.ivt_table))
+        . = ALIGN(4);
+    } > FLASH
+
+    /* ---- Vector table (128-byte aligned), follows IVT ---- */
+    .vector_table :
+    {
+        . = ALIGN(128);
         KEEP(*(.vector_table))
         . = ALIGN(4);
     } > FLASH
