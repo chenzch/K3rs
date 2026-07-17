@@ -1,0 +1,10 @@
+[build]
+# S32K312 is a Cortex-M7 (ARMv7E-M) with single-precision FPU.
+target = "thumbv7em-none-eabihf"
+
+[target.thumbv7em-none-eabihf]
+rustflags = [
+    "-C", "link-arg=-Tlink.x",
+    "-C", "link-arg=--nmagic",
+    "-C", "link-arg=--gc-sections",
+]

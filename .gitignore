@@ -1,0 +1,24 @@
+# Rust
+target/
+Cargo.lock
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+*.o
+*.a
+*.elf
+*.hex
+*.bin
+
+# Generated files (from svd2rust)
+src/mcu.rs
+src/vector_table.rs
+
+# Logs
+*.log
