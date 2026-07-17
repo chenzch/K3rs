@@ -2,11 +2,11 @@
 //!
 //! Boot flow (see `Reset_Handler`):
 //!   1. Disable global interrupts via inline asm (`cpsid i`).
-//!   2. Zero the first 16 bytes at SP (two 64-bit writes).
-//!   3. Copy ramcode (memcpy64 + memset64) from its load address in FLASH
-//!      to its link address in ITCM.  Section start/end and load address
-//!      are all 8-byte aligned, and the length is a multiple of 8.
-//!   4. Call `main`, which is an empty infinite loop.
+//!   2. Zero 16 bytes at SP-16..SP-1 (two 64-bit strd writes, r0=0).
+//!   3. Jump to `__rust_init` which copies ramcode and calls `main`.
+//!
+//! `Reset_Handler` is a naked function — no prologue, no epilogue,
+//! no stack frame, never returns.
 //!
 //! Interrupt handling:
 //!   - Full vector table (229 entries: SP + 15 core exceptions +
@@ -30,29 +30,41 @@ pub mod vector_table;
 pub mod ivt_table;
 
 // =====================================================================
-// Reset_Handler
+// Reset_Handler -- naked entry point (no prologue/epilogue, no stack frame).
 //
 // The hardware enters here out of reset with SP already loaded from
-// VECTOR_TABLE[0]. We then:
-//   1. disable global interrupts (inline asm),
-//   2. zero the first 16 bytes at SP (two 64-bit writes),
-//   3. copy ramcode (memcpy64 + memset64) from FLASH (LMA) to ITCM (VMA),
-//   4. call main.
+// VECTOR_TABLE[0]. We do the bare minimum in asm, then jump to the
+// Rust initialization function which never returns.
+//
+// Steps (all in asm):
+//   1. cpsid i           -- disable global interrupts
+//   2. movs r0, #0       -- zero r0 for strd
+//   3. strd r0,r0,[sp,#-16] -- zero bytes SP-16 .. SP-9
+//   4. strd r0,r0,[sp,#-8]  -- zero bytes SP-8 .. SP-1
+//   5. b    __rust_init  -- jump to Rust init (never returns)
 // =====================================================================
+#[unsafe(naked)]
 #[no_mangle]
 #[link_section = ".text.Reset_Handler"]
 pub unsafe extern "C" fn Reset_Handler() -> ! {
-    // (1) Disable global interrupts (cpsid i).
-    core::arch::asm!("cpsid i", options(nostack, preserves_flags, nomem));
+    core::arch::naked_asm!(
+        "cpsid i",
+        "movs r0, #0",
+        "strd r0, r0, [sp, #-16]",
+        "strd r0, r0, [sp, #-8]",
+        "b {rust_init}",
+        rust_init = sym __rust_init,
+    );
+}
 
-    // (2) Zero the first 16 bytes at SP (two 8-byte writes).
-    let sp: usize;
-    core::arch::asm!("mov {}, sp", out(reg) sp, options(nomem, nostack, preserves_flags));
-    let sp_ptr = sp as *mut u64;
-    ptr::write_volatile(sp_ptr, 0);
-    ptr::write_volatile(sp_ptr.add(1), 0);
-
-    // (3) Copy ramcode (memcpy64 + memset64) from FLASH load address to ITCM link address.
+// =====================================================================
+// __rust_init -- Rust-side initialization (called from Reset_Handler).
+//
+//   1. Copy ramcode (memcpy64 + memset64) from FLASH (LMA) to ITCM (VMA).
+//   2. Call main.
+// =====================================================================
+unsafe extern "C" fn __rust_init() -> ! {
+    // Copy ramcode from its FLASH load address to its ITCM link address.
     extern "C" {
         static __ramcode_start: u8;
         static __ramcode_end: u8;
@@ -69,7 +81,6 @@ pub unsafe extern "C" fn Reset_Handler() -> ! {
         core::hint::black_box(memcpy64);
     do_copy(src, dst, len);
 
-    // (4) Call main.
     main();
 }
 

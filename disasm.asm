@@ -4,51 +4,53 @@ target/thumbv7em-none-eabihf/release/K3rs:	file format elf32-littlearm
 Disassembly of section .text:
 
 00400490 <Reset_Handler>:
-; pub unsafe extern "C" fn Reset_Handler() -> ! {
-  400490:      	push	{r5, r6, r7, lr}
-  400492:      	add	r7, sp, #0x8
-  400494:      	movs	r0, #0x0
-;     core::arch::asm!("cpsid i", options(nostack, preserves_flags, nomem));
-  400496:      	cpsid i
-;     core::arch::asm!("mov {}, sp", out(reg) sp, options(nomem, nostack, preserves_flags));
-  400498:      	mov	r1, sp
-/root/.local/share/swiftly/toolchains/6.2.4/usr/bin/llvm-objdump: warning: 'target/thumbv7em-none-eabihf/release/K3rs': failed to find source /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/core/src/ptr/mod.rs
-  40049a:      	strd	r0, r0, [r1]
-  40049e:      	strd	r0, r0, [r1, #8]
-/root/.local/share/swiftly/toolchains/6.2.4/usr/bin/llvm-objdump: warning: 'target/thumbv7em-none-eabihf/release/K3rs': failed to find source /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/core/src/hint.rs
-  4004a2:      	ldr	r0, [pc, #0x14]         @ 0x4004b8 <Reset_Handler+0x28>
-  4004a4:      	str	r0, [sp, #0x4]
-  4004a6:      	add	r0, sp, #0x4
-;     do_copy(src, dst, len);
-  4004a8:      	ldr	r1, [pc, #0x10]         @ 0x4004bc <Reset_Handler+0x2c>
-  4004aa:      	ldr	r0, [pc, #0x14]         @ 0x4004c0 <Reset_Handler+0x30>
-  4004ac:      	ldr	r3, [sp, #0x4]
-;     do_copy(src, dst, len);
-  4004ae:      	subs	r2, r0, r1
-  4004b0:      	ldr	r0, [pc, #0x10]         @ 0x4004c4 <Reset_Handler+0x34>
-  4004b2:      	blx	r3
-;     main();
-  4004b4:      	bl	0x4004ce <main>         @ imm = #0x16
-  4004b8: 01 00 00 00  	.word	0x00000001
-  4004bc: 00 00 00 00  	.word	0x00000000
-  4004c0: 30 00 00 00  	.word	0x00000030
-  4004c4: d8 04 40 00  	.word	0x004004d8
+  400490:      	cpsid i
+  400492:      	movs	r0, #0x0
+  400494:      	strd	r0, r0, [sp, #-16]
+  400498:      	strd	r0, r0, [sp, #-8]
+  40049c:      	b.w	0x4004a8 <_ZN4K3rs11__rust_init17h7f850b3e10c5f602E> @ imm = #0x8
 
-004004c8 <WKPU_IRQHandler>:
+004004a0 <WKPU_IRQHandler>:
 ; pub extern "C" fn Default_Handler() -> ! {
-  4004c8:      	push	{r7, lr}
-  4004ca:      	mov	r7, sp
+  4004a0:      	push	{r7, lr}
+  4004a2:      	mov	r7, sp
 ;     loop {}
-  4004cc:      	b	0x4004cc <WKPU_IRQHandler+0x4> @ imm = #-0x4
+  4004a4:      	b	0x4004a4 <WKPU_IRQHandler+0x4> @ imm = #-0x4
+  4004a6:      	bmi	0x400452 <_vector_table+0x352> @ imm = #-0x58
 
-004004ce <main>:
+004004a8 <_ZN4K3rs11__rust_init17h7f850b3e10c5f602E>:
+; unsafe extern "C" fn __rust_init() -> ! {
+  4004a8:      	push	{r5, r6, r7, lr}
+  4004aa:      	add	r7, sp, #0x8
+/root/.local/share/swiftly/toolchains/6.2.4/usr/bin/llvm-objdump: warning: 'target/thumbv7em-none-eabihf/release/K3rs': failed to find source /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/core/src/hint.rs
+  4004ac:      	ldr	r0, [pc, #0x14]         @ 0x4004c4 <_ZN4K3rs11__rust_init17h7f850b3e10c5f602E+0x1c>
+  4004ae:      	str	r0, [sp, #0x4]
+  4004b0:      	add	r0, sp, #0x4
+;     do_copy(src, dst, len);
+  4004b2:      	ldr	r1, [pc, #0x14]         @ 0x4004c8 <_ZN4K3rs11__rust_init17h7f850b3e10c5f602E+0x20>
+  4004b4:      	ldr	r0, [pc, #0x14]         @ 0x4004cc <_ZN4K3rs11__rust_init17h7f850b3e10c5f602E+0x24>
+  4004b6:      	ldr	r3, [sp, #0x4]
+;     do_copy(src, dst, len);
+  4004b8:      	subs	r2, r0, r1
+  4004ba:      	ldr	r0, [pc, #0x14]         @ 0x4004d0 <_ZN4K3rs11__rust_init17h7f850b3e10c5f602E+0x28>
+  4004bc:      	blx	r3
+;     main();
+  4004be:      	bl	0x4004d4 <main>         @ imm = #0x12
+  4004c2:      	nop
+  4004c4: 01 00 00 00  	.word	0x00000001
+  4004c8: 00 00 00 00  	.word	0x00000000
+  4004cc: 30 00 00 00  	.word	0x00000030
+  4004d0: e0 04 40 00  	.word	0x004004e0
+
+004004d4 <main>:
 ; pub extern "C" fn main() -> ! {
-  4004ce:      	push	{r7, lr}
-  4004d0:      	mov	r7, sp
+  4004d4:      	push	{r7, lr}
+  4004d6:      	mov	r7, sp
 ;     loop {}
-  4004d2:      	b	0x4004d2 <main+0x4>     @ imm = #-0x4
-  4004d4:      	bmi	0x400480 <_vector_table+0x380> @ imm = #-0x58
-  4004d6:      	bmi	0x400482 <_vector_table+0x382> @ imm = #-0x58
+  4004d8:      	b	0x4004d8 <main+0x4>     @ imm = #-0x4
+  4004da:      	bmi	0x400486 <_vector_table+0x386> @ imm = #-0x58
+  4004dc:      	bmi	0x400488 <_vector_table+0x388> @ imm = #-0x58
+  4004de:      	bmi	0x40048a <_vector_table+0x38a> @ imm = #-0x58
 
 Disassembly of section .ramcode:
 
@@ -61,6 +63,7 @@ Disassembly of section .ramcode:
        6:      	mov	r3, r1
 ;     while i < count {
        8:      	cbz	r2, 0x16 <memcpy64+0x16> @ imm = #0xa
+/root/.local/share/swiftly/toolchains/6.2.4/usr/bin/llvm-objdump: warning: 'target/thumbv7em-none-eabihf/release/K3rs': failed to find source /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/core/src/ptr/mod.rs
        a:      	ldrd	r4, r5, [r0], #8
 ;     while i < count {
        e:      	subs	r2, #0x1
