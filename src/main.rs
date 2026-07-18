@@ -124,7 +124,8 @@ pub unsafe extern "C" fn memset64(dst: *mut u8, value: u64, n: usize) -> *mut u8
 // =====================================================================
 #[no_mangle]
 #[link_section = ".text.Default_Handler"]
-pub extern "C" fn Default_Handler() -> ! {
+#[allow(non_snake_case)]
+pub fn Default_Handler() -> ! {
     loop {}
 }
 
