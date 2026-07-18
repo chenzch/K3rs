@@ -4,9 +4,13 @@
  * sits at the very start of FLASH; the CPU loads the initial SP from its
  * first word and the reset vector from its second word.
  *
- * `memcpy64` and `memset64` are placed as ramcode: VMA in ITCM, LMA in FLASH,
- * self-copied at reset. Both start/end symbols and the load address are
- * 8-byte aligned.
+ * Ramcode layout in ITCM (VMA=ITCM, LMA=FLASH):
+ *   - .itcm_text.memcpy64 : placed at ITCM origin (0x00000000).
+ *     Copied first by inline loop in Reset_Handler (cannot call memcpy64
+ *     before it is in ITCM).
+ *   - .itcm_text           : follows memcpy64, contains memset64 (and any
+ *     other ramcode). Copied by memcpy64 after memcpy64 is in place.
+ * All start/end/load addresses are 8-byte aligned.
  */
 
 INCLUDE memory.x
@@ -51,17 +55,29 @@ SECTIONS
         . = ALIGN(8);
     } > FLASH
 
-    /* ---- Ramcode (memcpy64 + memset64) in ITCM (VMA=ITCM, LMA=FLASH) ---- */
-    .ramcode :
+    /* ---- memcpy64 as ramcode, at the very start of ITCM ---- */
+    .itcm_text.memcpy64 ORIGIN(ITCM) :
     {
         . = ALIGN(8);
-        __ramcode_start = .;
-        KEEP(*(.ramcode))
+        __memcpy64_start = .;
+        KEEP(*(.itcm_text.memcpy64))
         . = ALIGN(8);
-        __ramcode_end = .;
+        __memcpy64_end = .;
     } > ITCM AT > FLASH
-    __ramcode_load = LOADADDR(.ramcode);
-    ASSERT(__ramcode_load % 8 == 0, "ramcode load address must be 8-byte aligned")
+    __memcpy64_load = LOADADDR(.itcm_text.memcpy64);
+    ASSERT(__memcpy64_load % 8 == 0, "memcpy64 load address must be 8-byte aligned")
+
+    /* ---- memset64 (and other ramcode) in ITCM, after memcpy64 ---- */
+    .itcm_text :
+    {
+        . = ALIGN(8);
+        __itcm_text_start = .;
+        KEEP(*(.itcm_text))
+        . = ALIGN(8);
+        __itcm_text_end = .;
+    } > ITCM AT > FLASH
+    __itcm_text_load = LOADADDR(.itcm_text);
+    ASSERT(__itcm_text_load % 8 == 0, "itcm_text load address must be 8-byte aligned")
 
     /* ---- Initialized data: lives in FLASH, copied to DTCM at runtime ---- */
     .data :

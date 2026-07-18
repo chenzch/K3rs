@@ -3,8 +3,11 @@
 //! Boot flow (see `Reset_Handler`):
 //!   1. Disable global interrupts via inline asm (`cpsid i`).
 //!   2. Zero 16 bytes at SP-16..SP-1 (two 64-bit strd writes, r0=0).
-//!   3. Copy ramcode (memcpy64 + memset64) from FLASH (LMA) to ITCM (VMA).
-//!   4. Jump to `main` (never returns).
+//!   3. Inline-copy memcpy64 from FLASH (LMA) to ITCM (VMA) -- cannot call
+//!      memcpy64 yet because it is not in ITCM.
+//!   4. Call memcpy64 to copy the rest of itcm_text (memset64) from FLASH
+//!      to ITCM.  Now memcpy64 is in place and callable.
+//!   5. Jump to `main` (never returns).
 //!
 //! `Reset_Handler` is a naked function — no prologue, no epilogue,
 //! no stack frame, never returns. All init code is inline asm.
@@ -37,26 +40,36 @@ pub mod ivt_table;
 // VECTOR_TABLE[0]. All initialization is inline asm; this function
 // never returns.
 //
-// Steps (all in asm):
-//   1. cpsid i                    -- disable global interrupts
-//   2. movs r0, #0                -- zero r0 for strd
-//   3. strd r0,r0,[sp,#-16]       -- zero bytes SP-16 .. SP-9
-//   4. strd r0,r0,[sp,#-8]        -- zero bytes SP-8 .. SP-1
-//   5. ldr  r0, =__ramcode_load   -- r0 = src  (FLASH LMA)
-//   6. ldr  r1, =__ramcode_start  -- r1 = dst  (ITCM VMA)
-//   7. ldr  r2, =__ramcode_end    -- r2 = end  (ITCM VMA)
-//   8. sub  r2, r2, r1            -- r2 = len = end - start
-//   9. bl   memcpy64              -- copy ramcode from FLASH to ITCM
-//  10. b    main                  -- jump to main (never returns)
+// Boot sequence (all in asm):
+//   1. cpsid i                        -- disable global interrupts
+//   2. movs r0, #0                    -- zero r0 for strd
+//   3. strd r0,r0,[sp,#-16]           -- zero bytes SP-16 .. SP-9
+//   4. strd r0,r0,[sp,#-8]            -- zero bytes SP-8 .. SP-1
+//   -- Phase 1: inline copy memcpy64 itself from FLASH to ITCM --
+//   5. ldr  r0, =__memcpy64_load      -- r0 = src  (FLASH LMA)
+//   6. ldr  r1, =__memcpy64_start     -- r1 = dst  (ITCM VMA = 0)
+//   7. ldr  r2, =__memcpy64_end       -- r2 = end  (ITCM VMA)
+//   8. sub  r2, r2, r1                -- r2 = len
+//   9. loop: ldrd/strd 8 bytes at a time until len == 0
+//   -- Phase 2: memcpy64 is now in ITCM, call it to copy itcm_text --
+//  10. ldr  r0, =__itcm_text_load     -- r0 = src  (FLASH LMA)
+//  11. ldr  r1, =__itcm_text_start    -- r1 = dst  (ITCM VMA)
+//  12. ldr  r2, =__itcm_text_end      -- r2 = end  (ITCM VMA)
+//  13. sub  r2, r2, r1                -- r2 = len
+//  14. bl   memcpy64                  -- copy itcm_text (memset64) to ITCM
+//  15. b    main                      -- jump to main (never returns)
 // =====================================================================
 #[unsafe(naked)]
 #[no_mangle]
 #[link_section = ".text.Reset_Handler"]
 pub unsafe extern "C" fn Reset_Handler() -> ! {
     extern "C" {
-        static __ramcode_start: u8;
-        static __ramcode_end: u8;
-        static __ramcode_load: u8;
+        static __memcpy64_start: u8;
+        static __memcpy64_end: u8;
+        static __memcpy64_load: u8;
+        static __itcm_text_start: u8;
+        static __itcm_text_end: u8;
+        static __itcm_text_load: u8;
         fn memcpy64(src: *const u8, dst: *mut u8, n: usize) -> *mut u8;
         fn main() -> !;
     }
@@ -65,15 +78,31 @@ pub unsafe extern "C" fn Reset_Handler() -> ! {
         "movs r0, #0",
         "strd r0, r0, [sp, #-16]",
         "strd r0, r0, [sp, #-8]",
-        "ldr r0, ={load}",
-        "ldr r1, ={start}",
-        "ldr r2, ={end}",
+        // Phase 1: inline copy memcpy64 from FLASH to ITCM (8 bytes at a time).
+        "ldr r0, ={m64_load}",
+        "ldr r1, ={m64_start}",
+        "ldr r2, ={m64_end}",
+        "sub r2, r2, r1",
+        "1:",
+        "cbz r2, 2f",
+        "ldrd r3, r4, [r0], #8",
+        "strd r3, r4, [r1], #8",
+        "subs r2, r2, #8",
+        "b 1b",
+        "2:",
+        // Phase 2: memcpy64 is now in ITCM, call it to copy itcm_text.
+        "ldr r0, ={text_load}",
+        "ldr r1, ={text_start}",
+        "ldr r2, ={text_end}",
         "sub r2, r2, r1",
         "bl {copy}",
         "b {main}",
-        load = sym __ramcode_load,
-        start = sym __ramcode_start,
-        end = sym __ramcode_end,
+        m64_load = sym __memcpy64_load,
+        m64_start = sym __memcpy64_start,
+        m64_end = sym __memcpy64_end,
+        text_load = sym __itcm_text_load,
+        text_start = sym __itcm_text_start,
+        text_end = sym __itcm_text_end,
         copy = sym memcpy64,
         main = sym main,
     );
@@ -92,7 +121,7 @@ pub unsafe extern "C" fn Reset_Handler() -> ! {
 // Returns dst.
 // =====================================================================
 #[no_mangle]
-#[link_section = ".ramcode"]
+#[link_section = ".itcm_text.memcpy64"]
 #[inline(never)]
 pub unsafe extern "C" fn memcpy64(src: *const u8, dst: *mut u8, n: usize) -> *mut u8 {
     let count = n / 8;
@@ -119,7 +148,7 @@ pub unsafe extern "C" fn memcpy64(src: *const u8, dst: *mut u8, n: usize) -> *mu
 // Returns dst.
 // =====================================================================
 #[no_mangle]
-#[link_section = ".ramcode"]
+#[link_section = ".itcm_text"]
 #[inline(never)]
 pub unsafe extern "C" fn memset64(dst: *mut u8, value: u64, n: usize) -> *mut u8 {
     let count = n / 8;
