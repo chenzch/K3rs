@@ -8,7 +8,7 @@ Disassembly of section .text:
   400492:      	eor.w	r0, r0, r0
   400496:      	strd	r0, r0, [sp, #-16]
   40049a:      	strd	r0, r0, [sp, #-8]
-  40049e:      	ldr.w	pc, [pc, #0x8]          @ 0x4004a8 <_ZN4K3rs4main17ha93230f50fb32d98E>
+  40049e:      	b.w	0x4004a8 <_ZN4K3rs4main17ha93230f50fb32d98E> @ imm = #0x6
 
 004004a2 <WKPU_IRQHandler>:
 ; pub extern "C" fn Default_Handler() -> ! {

@@ -39,14 +39,14 @@ pub mod ivt_table;
 //
 // The hardware enters here out of reset with SP already loaded from
 // VECTOR_TABLE[0]. This function does the bare minimum and jumps to
-// `main` via `ldr pc, =main` (direct PC assignment). Never returns.
+// `main` via `b main` (ordinary branch, never returns).
 //
 // Steps (all in naked_asm!):
 //   1. cpsid i             -- disable global interrupts
 //   2. eor r0, r0, r0      -- zero r0 via xor
 //   3. strd r0,r0,[sp,#-16] -- zero SP-16 .. SP-9 (8 bytes)
 //   4. strd r0,r0,[sp,#-8]  -- zero SP-8  .. SP-1 (8 bytes)
-//   5. ldr pc, =main       -- jump to main (direct PC assignment)
+//   5. b    main           -- branch to main (never returns)
 // =====================================================================
 #[unsafe(naked)]
 #[no_mangle]
@@ -57,7 +57,7 @@ pub unsafe extern "C" fn Reset_Handler() -> ! {
         "eor r0, r0, r0",
         "strd r0, r0, [sp, #-16]",
         "strd r0, r0, [sp, #-8]",
-        "ldr pc, {main}",
+        "b {main}",
         main = sym main,
     );
 }
