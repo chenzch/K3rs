@@ -2,15 +2,16 @@
 //!
 //! Boot flow (see `Reset_Handler`):
 //!   1. Disable global interrupts via inline asm (`cpsid i`).
-//!   2. Zero r0 via `eor r0, r0, r0` (ARM xor), and read SP for Rust use.
-//!   3. Zero 16 bytes at SP-16..SP-1 (two 64-bit volatile writes).
-//!   4. Inline-copy memcpy64 from FLASH (LMA) to ITCM (VMA) using a Rust
-//!      loop -- cannot call memcpy64 yet because it is not in ITCM.
+//!   2. Zero r0 via `eor r0, r0, r0` (ARM xor).
+//!   3. Zero 16 bytes at SP-16..SP-1 (two 64-bit strd writes).
+//!   4. Inline-copy memcpy64 from FLASH (LMA) to ITCM (VMA) -- cannot call
+//!      memcpy64 yet because it is not in ITCM.
 //!   5. Call memcpy64 to copy the rest of itcm_text (memset64) from FLASH
 //!      to ITCM.  Now memcpy64 is in place and callable.
-//!   6. Call `main` (never returns).
+//!   6. Jump to `main` (never returns).
 //!
-//! Only step 1+2 use inline asm; the rest is plain Rust.
+//! `Reset_Handler` is a naked function -- no prologue, no epilogue,
+//! no stack frame, never returns. All logic is in a single naked_asm! block.
 //!
 //! Interrupt handling:
 //!   - Full vector table (229 entries: SP + 15 core exceptions +
@@ -34,76 +35,31 @@ pub mod vector_table;
 pub mod ivt_table;
 
 // =====================================================================
-// Reset_Handler -- reset entry point.
+// Reset_Handler -- naked entry point (no prologue/epilogue, no stack frame).
 //
 // The hardware enters here out of reset with SP already loaded from
-// VECTOR_TABLE[0]. Only the first two instructions (cpsid i + eor r0)
-// are inline asm; the rest is plain Rust. This function never returns.
+// VECTOR_TABLE[0]. This function does the bare minimum and jumps to
+// `main` via `ldr pc, =main` (direct PC assignment). Never returns.
 //
-// Boot sequence:
-//   1. cpsid i             -- disable global interrupts (asm)
-//   2. eor r0, r0, r0      -- zero r0 via xor (asm), read SP into Rust
-//   3. Zero 16 bytes at SP-16..SP-1 (Rust volatile writes)
-//   4. Inline-copy memcpy64 from FLASH to ITCM (Rust loop, cannot call
-//      memcpy64 before it is in place)
-//   5. Call memcpy64 to copy itcm_text (memset64) from FLASH to ITCM
-//   6. Call main (never returns)
+// Steps (all in naked_asm!):
+//   1. cpsid i             -- disable global interrupts
+//   2. eor r0, r0, r0      -- zero r0 via xor
+//   3. strd r0,r0,[sp,#-16] -- zero SP-16 .. SP-9 (8 bytes)
+//   4. strd r0,r0,[sp,#-8]  -- zero SP-8  .. SP-1 (8 bytes)
+//   5. ldr pc, =main       -- jump to main (direct PC assignment)
 // =====================================================================
+#[unsafe(naked)]
 #[no_mangle]
 #[link_section = ".text.Reset_Handler"]
 pub unsafe extern "C" fn Reset_Handler() -> ! {
-    // (1) Disable global interrupts.
-    // (2) Zero r0 via xor (ARM: eor). Also read SP for use by Rust code.
-    let sp: usize;
-    core::arch::asm!(
+    core::arch::naked_asm!(
         "cpsid i",
         "eor r0, r0, r0",
-        "mov {sp}, sp",
-        sp = out(reg) sp,
-        out("r0") _,
-        options(nostack, nomem),
+        "strd r0, r0, [sp, #-16]",
+        "strd r0, r0, [sp, #-8]",
+        "ldr pc, {main}",
+        main = sym main,
     );
-
-    // (3) Zero 16 bytes at SP-16..SP-1 (two 8-byte writes).
-    let sp_ptr = sp as *mut u64;
-    ptr::write_volatile(sp_ptr.offset(-2), 0); // SP-16 .. SP-9
-    ptr::write_volatile(sp_ptr.offset(-1), 0); // SP-8  .. SP-1
-
-    // (4) Phase 1: inline-copy memcpy64 itself from FLASH to ITCM.
-    //     Cannot call memcpy64 yet -- it is not in ITCM.
-    extern "C" {
-        static __memcpy64_start: u8;
-        static __memcpy64_end: u8;
-        static __memcpy64_load: u8;
-        static __itcm_text_start: u8;
-        static __itcm_text_end: u8;
-        static __itcm_text_load: u8;
-    }
-    let m64_src = ptr::addr_of!(__memcpy64_load);
-    let m64_dst = ptr::addr_of!(__memcpy64_start) as *mut u8;
-    let m64_len =
-        ptr::addr_of!(__memcpy64_end) as usize - ptr::addr_of!(__memcpy64_start) as usize;
-    let m64_count = m64_len / 8;
-    for i in 0..m64_count {
-        let offset = i * 8;
-        let s = (m64_src as usize + offset) as *const u64;
-        let d = (m64_dst as usize + offset) as *mut u64;
-        let val = ptr::read_volatile(s);
-        ptr::write_volatile(d, val);
-    }
-
-    // (5) Phase 2: memcpy64 is now in ITCM. Call it to copy itcm_text.
-    let text_src = ptr::addr_of!(__itcm_text_load);
-    let text_dst = ptr::addr_of!(__itcm_text_start) as *mut u8;
-    let text_len =
-        ptr::addr_of!(__itcm_text_end) as usize - ptr::addr_of!(__itcm_text_start) as usize;
-    // Route through black_box to stop LLVM rewriting the call as a memcpy builtin.
-    let do_copy: unsafe extern "C" fn(*const u8, *mut u8, usize) -> *mut u8 =
-        core::hint::black_box(memcpy64);
-    do_copy(text_src, text_dst, text_len);
-
-    // (6) Call main (never returns).
-    main();
 }
 
 // =====================================================================
@@ -173,10 +129,56 @@ pub extern "C" fn Default_Handler() -> ! {
 }
 
 // =====================================================================
-// main -- an empty infinite loop (standard Rust fn, no extern "C").
+// main -- ramcode setup + main loop.
+//
+// Entered from Reset_Handler via `ldr pc, =main` after interrupts are
+// disabled and SP-16..SP-1 are zeroed.
+//
+// Steps:
+//   1. Inline-copy memcpy64 itself from FLASH (LMA) to ITCM (VMA) using
+//      a Rust loop -- cannot call memcpy64 before it is in place.
+//   2. Call memcpy64 to copy the rest of itcm_text (memset64) from FLASH
+//      to ITCM.  Now memcpy64 is in place and callable.
+//   3. Infinite loop (main loop).
 // =====================================================================
 #[inline(never)]
 fn main() -> ! {
+    // (1) Phase 1: inline-copy memcpy64 itself from FLASH to ITCM.
+    //     Cannot call memcpy64 yet -- it is not in ITCM.
+    unsafe {
+        extern "C" {
+            static __memcpy64_start: u8;
+            static __memcpy64_end: u8;
+            static __memcpy64_load: u8;
+            static __itcm_text_start: u8;
+            static __itcm_text_end: u8;
+            static __itcm_text_load: u8;
+        }
+        let m64_src = ptr::addr_of!(__memcpy64_load);
+        let m64_dst = ptr::addr_of!(__memcpy64_start) as *mut u8;
+        let m64_len =
+            ptr::addr_of!(__memcpy64_end) as usize - ptr::addr_of!(__memcpy64_start) as usize;
+        let m64_count = m64_len / 8;
+        for i in 0..m64_count {
+            let offset = i * 8;
+            let s = (m64_src as usize + offset) as *const u64;
+            let d = (m64_dst as usize + offset) as *mut u64;
+            let val = ptr::read_volatile(s);
+            ptr::write_volatile(d, val);
+        }
+
+        // (2) Phase 2: memcpy64 is now in ITCM. Call it to copy itcm_text.
+        let text_src = ptr::addr_of!(__itcm_text_load);
+        let text_dst = ptr::addr_of!(__itcm_text_start) as *mut u8;
+        let text_len =
+            ptr::addr_of!(__itcm_text_end) as usize - ptr::addr_of!(__itcm_text_start) as usize;
+        // Route through black_box to stop LLVM rewriting the call as a memcpy builtin.
+        let do_copy: unsafe extern "C" fn(*const u8, *mut u8, usize) -> *mut u8 =
+            core::hint::black_box(memcpy64);
+        do_copy(text_src, text_dst, text_len);
+    }
+
+    // (3) Main loop (never returns).
     loop {}
 }
 
